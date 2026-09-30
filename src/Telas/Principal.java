@@ -20,7 +20,6 @@ public class Principal extends javax.swing.JFrame {
     String modojogo = "";
     String[][] matriz = new String[3][3];
     String vezjogador = "";
-    String vezIA = "";
     int contadorjogada = 0;
     int jogadasLivres = 0;
     String jogador = "";
@@ -125,7 +124,7 @@ public class Principal extends javax.swing.JFrame {
             habilitabotoes(true);
             habilitaCheckBox(false);
             limpaBotoes();
-            preencheMatriz();
+            preencheMatriz(matriz);
             jBnovo.setEnabled(false);
         } else {
             JOptionPane.showMessageDialog(null, "Selecione um modo para jogar");
@@ -224,7 +223,7 @@ public class Principal extends javax.swing.JFrame {
         contadorjogada = 0;
         limpaBotoes();
         habilitabotoes(false);
-        preencheMatriz();
+        preencheMatriz(matriz);
         jBnovo.setEnabled(true);
         habilitaCheckBox(true);
         verificaModo();
@@ -247,6 +246,56 @@ public class Principal extends javax.swing.JFrame {
 
         if (modojogo == "pvp") {
 
+            realizaJogada(botao, matriz, modojogo);
+
+            resultado = verificaGanhador(matriz, vezjogador);
+
+            trataFimJogo(resultado, modojogo, vezjogador);
+
+            return;
+        }
+
+        String vezIA = "O";
+
+        if (modojogo == "ia_facil") {
+            vezjogador = "X";
+
+            realizaJogada(botao, matriz, modojogo);
+
+            resultado = verificaGanhador(matriz, vezjogador);
+
+            trataFimJogo(resultado, modojogo, vezjogador);
+
+            jogadaIAFacil(matriz, contadorjogada);
+
+            resultado = verificaGanhador(matriz, vezjogador);
+
+            trataFimJogo(resultado, modojogo, vezjogador);
+
+        }
+
+        if (modojogo == "ia_dificil") {
+
+            realizaJogada(botao, matriz, modojogo);
+
+            resultado = verificaGanhador(matriz, vezjogador);
+
+            trataFimJogo(resultado, modojogo, vezjogador);
+
+            marcaPosicao(matriz, vezIA);
+
+            resultado = verificaGanhador(matriz, vezIA);
+
+            trataFimJogo(resultado, modojogo, vezjogador);
+
+        }
+
+    }
+
+    public void realizaJogada(javax.swing.JButton botao, String[][] matriz, String modojogo) {
+        String vezjogador = "";
+
+        if (modojogo.equals("pvp")) {
             if (contadorjogada % 2 == 0) {
                 vezjogador = "X";
             }
@@ -254,124 +303,52 @@ public class Principal extends javax.swing.JFrame {
             if (contadorjogada % 2 != 0) {
                 vezjogador = "O";
             }
+        }
 
-            botao.setText(vezjogador);
+        if (modojogo.contains("ia")) {
+            vezjogador = "X";
+        }
 
-            contadorjogada++;
-            preencheMatriz();
+        botao.setText(vezjogador);
+        preencheMatriz(matriz);
 
-            resultado = verificaGanhador(matriz, vezjogador);
+        contadorjogada++;
+    }
 
-            if (resultado.equals("X") || resultado.equals("O")) {
-                JOptionPane.showMessageDialog(null, "Jogador " + resultado + " ganhou");
-                resetaJogo();
-                return;
-            }
+    public void trataFimJogo(String resultado, String modojogo, String vezjogador) {
 
-            if (resultado.equals("empate")) {
-                JOptionPane.showMessageDialog(null, "Velha, jogo encerrado");
-                resetaJogo();
-                return;
-            }
-
+        if (resultado.equals("")) {
             return;
         }
 
-        if (modojogo == "ia_facil") {
-            vezjogador = "X";
-            vezIA = "O";
-
-            botao.setText(vezjogador);
-
-            contadorjogada++;
-            preencheMatriz();
-
-            resultado = verificaGanhador(matriz, vezjogador);
-
-            if (resultado.equals("X")) {
-                JOptionPane.showMessageDialog(null, "Jogador " + resultado + " ganhou");
-                resetaJogo();
-                return;
-            }
-
-            if (resultado.equals("empate")) {
-                JOptionPane.showMessageDialog(null, "Velha, jogo encerrado");
-                resetaJogo();
-                return;
-            }
-
-            jogadaIAFacil();
-            preencheBotoes();
-            preencheMatriz();
-
-            resultado = verificaGanhador(matriz, vezjogador);
-
-            if (resultado.equals("O")) {
-                JOptionPane.showMessageDialog(null, "IA Facil" + resultado + " ganhou");
-                resetaJogo();
-                return;
-            }
-
-            if (resultado.equals("empate")) {
-                JOptionPane.showMessageDialog(null, "Velha, jogo encerrado");
-                resetaJogo();
-                return;
-            }
-
+        if (resultado.equals("empate")) {
+            JOptionPane.showMessageDialog(null, "Velha, jogo encerrado");
         }
 
-        if (modojogo == "ia_dificil") {
-
-            vezjogador = "X";
-            vezIA = "O";
-
-            botao.setText(vezjogador);
-            preencheMatriz();
-
-            contadorjogada++;
-
-            resultado = verificaGanhador(matriz, vezjogador);
-
-            if (resultado.equals("X")) {
-                JOptionPane.showMessageDialog(null, "Jogador " + resultado + " ganhou");
-                resetaJogo();
-                return;
+        if (resultado.equals("O")) {
+            if (modojogo.equals("ia_facil")) {
+                JOptionPane.showMessageDialog(null, "IA Facil - " + resultado + " ganhou");
             }
 
-            if (resultado.equals("empate")) {
-                JOptionPane.showMessageDialog(null, "Velha, jogo encerrado");
-                resetaJogo();
-                return;
+            if (modojogo.equals("ia_dificil")) {
+                JOptionPane.showMessageDialog(null, "IA Dificil - " + resultado + " ganhou");
             }
 
-            marcaPosicao();
-
-            resultado = verificaGanhador(matriz, vezIA);
-
-            if (resultado.equals("O")) {
-                JOptionPane.showMessageDialog(null, "IA Dificil" + resultado + " ganhou");
-                resetaJogo();
-                return;
-            }
-
-            if (resultado.equals("empate")) {
-                JOptionPane.showMessageDialog(null, "Velha, jogo encerrado");
-                resetaJogo();
-                return;
+            if (modojogo.equals("pvp")) {
+                JOptionPane.showMessageDialog(null, "Jogador - " + resultado + " ganhou");
             }
         }
 
+        if (resultado.equals("X")) {
+            JOptionPane.showMessageDialog(null, "Jogador - " + resultado + " ganhou");
+        }
+
+        resetaJogo();
     }
 
-    public void realizaJogada(javax.swing.JButton botao, String vezJogador) {
-        
-        botao.setText(vezjogador);
-        preencheMatriz();
+    public void jogadaIAFacil(String[][] matriz, int contadorjogada) {
 
-        contadorjogada++;   
-    }
-
-    public void jogadaIAFacil() {
+        String vezIA = "O";
 
         Random numeroaleatorio = new Random();
         List<Posicao> jogadasPossiveis = new ArrayList<>();
@@ -390,47 +367,51 @@ public class Principal extends javax.swing.JFrame {
 
         matriz[jogada.getLinha()][jogada.getColuna()] = vezIA;
 
-        contadorjogada++;
+        preencheBotoes(matriz);
+        preencheMatriz(matriz);
 
     }
 
+    /*
     public List<Object> jogadasPossiveis() {;
 
-        List<Object> jogadasPossiveis = new ArrayList<Object>();
+    List<Object> jogadasPossiveis = new ArrayList<Object>();
 
-        for (int linha = 0; linha < 2; linha++) {
-            for (int coluna = 0; coluna < 2; coluna++) {
-                if (matriz[linha][coluna].equals("")) {
-                    jogadasPossiveis.add(new Posicao(linha, coluna));
-                }
+    for (int linha = 0; linha < 2; linha++) {
+        for (int coluna = 0; coluna < 2; coluna++) {
+            if (matriz[linha][coluna].equals("")) {
+                jogadasPossiveis.add(new Posicao(linha, coluna));
             }
         }
-        return jogadasPossiveis;
     }
+    return jogadasPossiveis;
+}
+     */
 
+ /*
     public void jogadaIADificil() {
 
-        /*posicao da jogada do usuario*/
-        List<Posicao> jogadasAdversario = new ArrayList<>();
+    //posicao da jogada do usuario
+    List<Posicao> jogadasAdversario = new ArrayList<>();
 
-        for (int linha = 0; linha < 3; linha++) {
-            for (int coluna = 0; coluna < 3; coluna++) {
-                if (matriz[linha][coluna] == vezjogador) {
-                    jogadasAdversario.add(new Posicao(linha, coluna));
-                }
+    for (int linha = 0; linha < 3; linha++) {
+        for (int coluna = 0; coluna < 3; coluna++) {
+            if (matriz[linha][coluna] == vezjogador) {
+                jogadasAdversario.add(new Posicao(linha, coluna));
             }
         }
-
-        /* verifica onde o jogador esta tentando formar um trio */
-        for (Posicao posicao : jogadasAdversario) {
-            System.out.println(posicao.getLinha() + " " + posicao.getColuna());
-        }
-
     }
 
-    public void marcaPosicao() {
+    //verifica onde o jogador esta tentando formar um trio 
+    for (Posicao posicao : jogadasAdversario) {
+        System.out.println(posicao.getLinha() + " " + posicao.getColuna());
+    }
+
+}*/
+    public void marcaPosicao(String[][] matriz, String vezIA) {
         int[] posicao = new int[2];
-        int melhorPontuacao = Integer.MIN_VALUE;;
+        int pontuacao;
+        int melhorPontuacao = Integer.MIN_VALUE;
 
         for (int linha = 0; linha < 3; linha++) {
             for (int coluna = 0; coluna < 3; coluna++) {
@@ -450,12 +431,14 @@ public class Principal extends javax.swing.JFrame {
             }
         }
         matriz[posicao[0]][posicao[1]] = vezIA;
-        preencheBotoes();
+        preencheBotoes(matriz);
     }
 
     public int miniMax(String[][] matriz, boolean vezMax) {
         int pontuacao;
         String resultado;
+        String vezIA = "O";
+        String vezjogador = "X";
 
         resultado = (vezMax) ? verificaGanhador(matriz, "X") : verificaGanhador(matriz, "O");
 
@@ -526,7 +509,7 @@ public class Principal extends javax.swing.JFrame {
         return melhorPontuacao;
     }
 
-    public void preencheMatriz() {
+    public void preencheMatriz(String[][] matriz) {
         matriz[0][0] = jb1.getText();
         matriz[0][1] = jb2.getText();
         matriz[0][2] = jb3.getText();
@@ -538,7 +521,7 @@ public class Principal extends javax.swing.JFrame {
         matriz[2][2] = jb9.getText();
     }
 
-    public void preencheBotoes() {
+    public void preencheBotoes(String[][] matriz) {
         jb1.setText(matriz[0][0]);
         jb2.setText(matriz[0][1]);
         jb3.setText(matriz[0][2]);
