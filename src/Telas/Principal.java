@@ -15,8 +15,9 @@ import java.util.Random;
  */
 public class Principal extends javax.swing.JFrame {
 
-    String[][] matriz = new String[3][3];
-    int contadorjogada = 0;
+    final private String[][] matriz = new String[3][3];
+    final private String SIMBOLO_IA = "O"; 
+    private int contadorjogada = 0;
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Principal.class.getName());
 
@@ -244,7 +245,6 @@ public class Principal extends javax.swing.JFrame {
     public void jogaBotao(javax.swing.JButton botao) {
         String resultado;
         String simboloJogador;
-        String simboloIA;
         String modoJogo;
 
         modoJogo = verificaModo();
@@ -264,14 +264,13 @@ public class Principal extends javax.swing.JFrame {
             return;
         }
 
-        turnoJogadorEIa(botao, modoJogo);
+        turnoJogadorEIA(botao, modoJogo);
 
     }
 
-    public void turnoJogadorEIa(javax.swing.JButton botao, String modoJogo) {
+    public void turnoJogadorEIA(javax.swing.JButton botao, String modoJogo) {
         String resultado;
         String simboloJogador;
-        String simboloIA;
 
         simboloJogador = realizaJogada(botao, matriz, modoJogo);
 
@@ -282,12 +281,12 @@ public class Principal extends javax.swing.JFrame {
         }
 
         if (modoJogo.equals("ia_facil")) {
-            simboloIA = jogadaIAFacil(matriz);
+           jogadaIAFacil(matriz);
         } else {
-            simboloIA = marcaPosicao(matriz);
+            marcaPosicao(matriz);
         }
 
-        resultado = verificaGanhador(matriz, simboloIA);
+        resultado = verificaGanhador(matriz, SIMBOLO_IA);
 
         trataFimJogo(resultado, modoJogo);
 
@@ -350,8 +349,7 @@ public class Principal extends javax.swing.JFrame {
         return true;
     }
 
-    public String jogadaIAFacil(String[][] matriz) {
-        String simboloIA = "O";
+    public void jogadaIAFacil(String[][] matriz) {
         Random numeroaleatorio = new Random();
 
         List<Posicao> jogadasPossiveis = jogadasPossiveis(matriz);
@@ -360,12 +358,11 @@ public class Principal extends javax.swing.JFrame {
 
         Posicao jogada = jogadasPossiveis.get(indice);
 
-        matriz[jogada.getLinha()][jogada.getColuna()] = simboloIA;
+        matriz[jogada.getLinha()][jogada.getColuna()] = SIMBOLO_IA;
 
         preencheBotoes(matriz);
         preencheMatriz(matriz);
 
-        return simboloIA;
     }
 
     public List<Posicao> jogadasPossiveis(String[][] matriz) {;
@@ -383,42 +380,54 @@ public class Principal extends javax.swing.JFrame {
         return jogadasPossiveis;
     }
 
-    public String marcaPosicao(String[][] matriz) {
-        String simboloIA = "O";
-        int pontuacao;
-        int melhorPontuacao = Integer.MIN_VALUE;
-        Posicao posicao = new Posicao(0, 0);
+    public String[][] copiaMatriz(String[][] matriz) {
+        String[][] matrizTeste = new String[3][3];
 
         for (int linha = 0; linha < 3; linha++) {
             for (int coluna = 0; coluna < 3; coluna++) {
-                if (matriz[linha][coluna].equals("")) {
-
-                    matriz[linha][coluna] = simboloIA;
-                    pontuacao = miniMax(matriz, false);
-                    matriz[linha][coluna] = "";
-
-                    if (pontuacao > melhorPontuacao) {
-                        melhorPontuacao = pontuacao;
-                        posicao.setLinha(linha);
-                        posicao.setColuna(coluna);
-
-                    }
-                }
+                matrizTeste[linha][coluna] = matriz[linha][coluna];
             }
         }
-        matriz[posicao.getLinha()][posicao.getColuna()] = simboloIA;
-        preencheBotoes(matriz);
 
-        return simboloIA;
+        return matrizTeste;
     }
 
-    public int miniMax(String[][] matriz, boolean vezMax) {
+    public void marcaPosicao(String[][] matriz) {
+        int pontuacao;
+        int melhorPontuacao = Integer.MIN_VALUE;
+        Posicao melhorPosicao = new Posicao(0, 0);
+
+        String[][] matrizTeste = copiaMatriz(matriz);
+
+        List<Posicao> jogadasPossiveis = new ArrayList<>();
+
+        jogadasPossiveis = jogadasPossiveis(matrizTeste);
+
+        for (Posicao posicao : jogadasPossiveis) {
+            matrizTeste[posicao.getLinha()][posicao.getColuna()] = SIMBOLO_IA;
+            pontuacao = miniMax(matrizTeste, false);
+            matrizTeste[posicao.getLinha()][posicao.getColuna()] = "";
+
+            if (pontuacao > melhorPontuacao) {
+                melhorPontuacao = pontuacao;
+                melhorPosicao.setLinha(posicao.getLinha());
+                melhorPosicao.setColuna(posicao.getColuna());
+
+            }
+        }
+
+        matriz[melhorPosicao.getLinha()][melhorPosicao.getColuna()] = SIMBOLO_IA;
+        preencheBotoes(matriz);
+
+    }
+
+    public int miniMax(String[][] matrizTeste, boolean vezMax) {
         int pontuacao;
         String resultado;
-        String simboloIA = "O";
         String simboloJogador = "X";
+        List<Posicao> jogadasPossiveis = new ArrayList<>();
 
-        resultado = (vezMax) ? verificaGanhador(matriz, "X") : verificaGanhador(matriz, "O");
+        resultado = (vezMax) ? verificaGanhador(matrizTeste, "X") : verificaGanhador(matrizTeste, "O");
 
         if (resultado.equals("O")) {
             pontuacao = 1;
@@ -435,37 +444,35 @@ public class Principal extends javax.swing.JFrame {
             return pontuacao;
         }
 
+        jogadasPossiveis = jogadasPossiveis(matrizTeste);
+
         if (vezMax) {
             int melhorPontuacaoLocal = Integer.MIN_VALUE;
 
-            for (int linha = 0; linha < 3; linha++) {
-                for (int coluna = 0; coluna < 3; coluna++) {
-                    if (matriz[linha][coluna].equals("")) {
+            for (Posicao posicao : jogadasPossiveis) {
+                matrizTeste[posicao.getLinha()][posicao.getColuna()] = SIMBOLO_IA;
+                pontuacao = miniMax(matrizTeste, false);
+                matrizTeste[posicao.getLinha()][posicao.getColuna()] = "";
 
-                        matriz[linha][coluna] = simboloIA;
-                        pontuacao = miniMax(matriz, false);
-                        matriz[linha][coluna] = "";
+                melhorPontuacaoLocal = max(pontuacao, melhorPontuacaoLocal);
 
-                        melhorPontuacaoLocal = max(pontuacao, melhorPontuacaoLocal);
-                    }
-                }
             }
+
             return melhorPontuacaoLocal;
+
         } else {
+
             int melhorPontuacaoLocal = Integer.MAX_VALUE;
 
-            for (int linha = 0; linha < 3; linha++) {
-                for (int coluna = 0; coluna < 3; coluna++) {
-                    if (matriz[linha][coluna].equals("")) {
+            for (Posicao posicao : jogadasPossiveis) {
+                matrizTeste[posicao.getLinha()][posicao.getColuna()] = simboloJogador;
+                pontuacao = miniMax(matrizTeste, true);
+                matrizTeste[posicao.getLinha()][posicao.getColuna()] = "";
 
-                        matriz[linha][coluna] = simboloJogador;
-                        pontuacao = miniMax(matriz, true);
-                        matriz[linha][coluna] = "";
+                melhorPontuacaoLocal = min(pontuacao, melhorPontuacaoLocal);
 
-                        melhorPontuacaoLocal = min(pontuacao, melhorPontuacaoLocal);
-                    }
-                }
             }
+
             return melhorPontuacaoLocal;
         }
 
