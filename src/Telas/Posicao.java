@@ -16,6 +16,10 @@ public class Posicao {
         this.linha = linha;
         this.coluna = coluna;
     }
+    
+    public Posicao(){
+        
+    }
 
     public int getColuna() {
         return coluna;

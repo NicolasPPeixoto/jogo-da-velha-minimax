@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package Telas;
 
 import javax.swing.JOptionPane;
@@ -9,15 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- *
- * @author Miguel
- */
 public class Principal extends javax.swing.JFrame {
 
     final private String[][] matriz = new String[3][3];
-    final private String SIMBOLO_IA = "O"; 
-    private int contadorjogada = 0;
+    private static final String SIMBOLO_IA = "O";
+    private int contadorJogada = 0;
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Principal.class.getName());
 
@@ -127,59 +119,55 @@ public class Principal extends javax.swing.JFrame {
         habilitaBotoes(true);
         habilitaCheckBox(false);
         limpaBotoes();
-        preencheMatriz(matriz);
+        preencheMatriz();
         jBnovo.setEnabled(false);
     }
 
     private void jb1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb1ActionPerformed
 
-        jogaBotao(jb1);
+        jogaBotao(new Posicao(0, 0));
 
     }//GEN-LAST:event_jb1ActionPerformed
 
     private void jb2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb2ActionPerformed
-        jogaBotao(jb2);
+        jogaBotao(new Posicao(0, 1));
     }//GEN-LAST:event_jb2ActionPerformed
 
     private void jb3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb3ActionPerformed
-        jogaBotao(jb3);
+        jogaBotao(new Posicao(0, 2));
 
     }//GEN-LAST:event_jb3ActionPerformed
 
     private void jb4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb4ActionPerformed
-        jogaBotao(jb4);
+        jogaBotao(new Posicao(1, 0));
 
     }//GEN-LAST:event_jb4ActionPerformed
 
     private void jb5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb5ActionPerformed
-        jogaBotao(jb5);
+        jogaBotao(new Posicao(1, 1));
     }//GEN-LAST:event_jb5ActionPerformed
 
     private void jb6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb6ActionPerformed
-        jogaBotao(jb6);
+        jogaBotao(new Posicao(1, 2));
     }//GEN-LAST:event_jb6ActionPerformed
 
     private void jb7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb7ActionPerformed
-        jogaBotao(jb7);
+        jogaBotao(new Posicao(2, 0));
     }//GEN-LAST:event_jb7ActionPerformed
 
     private void jb8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb8ActionPerformed
-        jogaBotao(jb8);
+        jogaBotao(new Posicao(2, 1));
     }//GEN-LAST:event_jb8ActionPerformed
 
     private void jb9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb9ActionPerformed
-        jogaBotao(jb9);
+        jogaBotao(new Posicao(2, 2));
     }//GEN-LAST:event_jb9ActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -190,9 +178,7 @@ public class Principal extends javax.swing.JFrame {
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new Principal().setVisible(true));
     }
 
@@ -208,7 +194,7 @@ public class Principal extends javax.swing.JFrame {
         jb9.setEnabled(valor);
     }
 
-    public String verificaModo() {
+    private String verificaModo() {
         String modoJogo;
         if (JCBPVP.isSelected()) {
             modoJogo = "pvp";
@@ -227,129 +213,136 @@ public class Principal extends javax.swing.JFrame {
         return "";
     }
 
-    public void resetaJogo() {
-        contadorjogada = 0;
+    private void resetaJogo() {
+        contadorJogada = 0;
         limpaBotoes();
         habilitaBotoes(false);
-        preencheMatriz(matriz);
+        preencheMatriz();
         jBnovo.setEnabled(true);
         habilitaCheckBox(true);
     }
 
-    public void habilitaCheckBox(boolean valor) {
+    private void habilitaCheckBox(boolean valor) {
         JCBPVP.setEnabled(valor);
         JCBIAfacil.setEnabled(valor);
         JCBIADificil.setEnabled(valor);
     }
 
-    public void jogaBotao(javax.swing.JButton botao) {
-        String resultado;
-        String simboloJogador;
+    private void jogaBotao(Posicao jogada) {
         String modoJogo;
+
+        int linha = jogada.getLinha();
+        int coluna = jogada.getColuna();
+
+        if (!matriz[linha][coluna].equals("")) {
+            return;
+        }
 
         modoJogo = verificaModo();
 
-        if (!botao.getText().equals("")) {
+        turnoJogador(linha, coluna, modoJogo);
+
+        if (verificaGanhadorEEncerra(modoJogo)) {
             return;
         }
 
         if (modoJogo.equals("pvp")) {
-
-            simboloJogador = realizaJogada(botao, matriz, modoJogo);
-
-            resultado = verificaGanhador(matriz, simboloJogador);
-
-            trataFimJogo(resultado, modoJogo);
-
             return;
         }
 
-        turnoJogadorEIA(botao, modoJogo);
+        turnoIA(modoJogo);
 
     }
 
-    public void turnoJogadorEIA(javax.swing.JButton botao, String modoJogo) {
-        String resultado;
-        String simboloJogador;
-
-        simboloJogador = realizaJogada(botao, matriz, modoJogo);
-
-        resultado = verificaGanhador(matriz, simboloJogador);
-
-        if (trataFimJogo(resultado, modoJogo)) {
-            return;
-        }
+    private void turnoIA(String modoJogo) {
+        Posicao jogadaIA = new Posicao();
 
         if (modoJogo.equals("ia_facil")) {
-           jogadaIAFacil(matriz);
-        } else {
-            marcaPosicao(matriz);
+            jogadaIA = jogadaIAFacil();
+        } else if (modoJogo.equals("ia_dificil")) {
+            jogadaIA = marcaPosicao();
         }
 
-        resultado = verificaGanhador(matriz, SIMBOLO_IA);
+        matriz[jogadaIA.getLinha()][jogadaIA.getColuna()] = SIMBOLO_IA;
 
-        trataFimJogo(resultado, modoJogo);
+        preencheBotoes();
 
+        verificaGanhadorEEncerra(modoJogo);
     }
 
-    public String realizaJogada(javax.swing.JButton botao, String[][] matriz, String modoJogo) {
+    private void turnoJogador(int linha, int coluna, String modoJogo) {
         String simboloJogador = "";
 
         if (modoJogo.equals("pvp")) {
-            if (contadorjogada % 2 == 0) {
+            if (contadorJogada % 2 == 0) {
                 simboloJogador = "X";
             }
 
-            if (contadorjogada % 2 != 0) {
+            if (contadorJogada % 2 != 0) {
                 simboloJogador = "O";
             }
-        }
-
-        if (modoJogo.contains("ia")) {
+            
+        } else {
             simboloJogador = "X";
         }
 
-        botao.setText(simboloJogador);
-        preencheMatriz(matriz);
+        contadorJogada++;
 
-        contadorjogada++;
+        matriz[linha][coluna] = simboloJogador;
 
-        return simboloJogador;
+        preencheBotoes();
     }
 
-    public boolean trataFimJogo(String resultado, String modoJogo) {
+    private boolean verificaGanhadorEEncerra(String modoJogo) {
+
+        String resultado = verificaGanhador(matriz);
+
+        if (!resultado.equals("")) {
+            trataFimJogo(resultado, modoJogo);
+            resetaJogo();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void trataFimJogo(String resultado, String modoJogo) {
+
+        String mensagemResultado = "";
 
         if (resultado.equals("")) {
-            return false;
+            return;
         }
 
         if (resultado.equals("empate")) {
-            JOptionPane.showMessageDialog(null, "Velha, jogo encerrado");
+
+            mensagemResultado = "Velha, jogo encerrado";
+            JOptionPane.showMessageDialog(null, mensagemResultado);
+            return;
         }
 
         if (resultado.equals("O")) {
             if (modoJogo.equals("ia_facil")) {
-                JOptionPane.showMessageDialog(null, "IA Facil - " + resultado + " ganhou");
+                mensagemResultado = "IA Facil";
             }
 
             if (modoJogo.equals("ia_dificil")) {
-                JOptionPane.showMessageDialog(null, "IA Dificil - " + resultado + " ganhou");
+                mensagemResultado = "IA Dificil";
             }
 
             if (modoJogo.equals("pvp")) {
-                JOptionPane.showMessageDialog(null, "Jogador - " + resultado + " ganhou");
+                mensagemResultado = "Jogador";
             }
         }
 
         if (resultado.equals("X")) {
-            JOptionPane.showMessageDialog(null, "Jogador - " + resultado + " ganhou");
+            mensagemResultado = "Jogador";
         }
 
-        resetaJogo();
-        return true;
+        JOptionPane.showMessageDialog(null, mensagemResultado + " - " + resultado + " - ganhou");
     }
 
-    public void jogadaIAFacil(String[][] matriz) {
+    private Posicao jogadaIAFacil() {
         Random numeroaleatorio = new Random();
 
         List<Posicao> jogadasPossiveis = jogadasPossiveis(matriz);
@@ -358,14 +351,10 @@ public class Principal extends javax.swing.JFrame {
 
         Posicao jogada = jogadasPossiveis.get(indice);
 
-        matriz[jogada.getLinha()][jogada.getColuna()] = SIMBOLO_IA;
-
-        preencheBotoes(matriz);
-        preencheMatriz(matriz);
-
+        return jogada;
     }
 
-    public List<Posicao> jogadasPossiveis(String[][] matriz) {;
+    private List<Posicao> jogadasPossiveis(String[][] matriz) {
 
         List<Posicao> jogadasPossiveis = new ArrayList<>();
 
@@ -380,7 +369,7 @@ public class Principal extends javax.swing.JFrame {
         return jogadasPossiveis;
     }
 
-    public String[][] copiaMatriz(String[][] matriz) {
+    private String[][] copiaMatriz(String[][] matriz) {
         String[][] matrizTeste = new String[3][3];
 
         for (int linha = 0; linha < 3; linha++) {
@@ -392,7 +381,7 @@ public class Principal extends javax.swing.JFrame {
         return matrizTeste;
     }
 
-    public void marcaPosicao(String[][] matriz) {
+    private Posicao marcaPosicao() {
         int pontuacao;
         int melhorPontuacao = Integer.MIN_VALUE;
         Posicao melhorPosicao = new Posicao(0, 0);
@@ -405,7 +394,7 @@ public class Principal extends javax.swing.JFrame {
 
         for (Posicao posicao : jogadasPossiveis) {
             matrizTeste[posicao.getLinha()][posicao.getColuna()] = SIMBOLO_IA;
-            pontuacao = miniMax(matrizTeste, false);
+            pontuacao = miniMax(matrizTeste, false, jogadasPossiveis);
             matrizTeste[posicao.getLinha()][posicao.getColuna()] = "";
 
             if (pontuacao > melhorPontuacao) {
@@ -416,18 +405,15 @@ public class Principal extends javax.swing.JFrame {
             }
         }
 
-        matriz[melhorPosicao.getLinha()][melhorPosicao.getColuna()] = SIMBOLO_IA;
-        preencheBotoes(matriz);
-
+        return melhorPosicao;
     }
 
-    public int miniMax(String[][] matrizTeste, boolean vezMax) {
+    private int miniMax(String[][] matrizTeste, boolean vezMax, List<Posicao> jogadasPossiveis) {
         int pontuacao;
         String resultado;
         String simboloJogador = "X";
-        List<Posicao> jogadasPossiveis = new ArrayList<>();
 
-        resultado = (vezMax) ? verificaGanhador(matrizTeste, "X") : verificaGanhador(matrizTeste, "O");
+        resultado = verificaGanhador(matrizTeste);
 
         if (resultado.equals("O")) {
             pontuacao = 1;
@@ -451,7 +437,7 @@ public class Principal extends javax.swing.JFrame {
 
             for (Posicao posicao : jogadasPossiveis) {
                 matrizTeste[posicao.getLinha()][posicao.getColuna()] = SIMBOLO_IA;
-                pontuacao = miniMax(matrizTeste, false);
+                pontuacao = miniMax(matrizTeste, false, jogadasPossiveis);
                 matrizTeste[posicao.getLinha()][posicao.getColuna()] = "";
 
                 melhorPontuacaoLocal = max(pontuacao, melhorPontuacaoLocal);
@@ -466,7 +452,7 @@ public class Principal extends javax.swing.JFrame {
 
             for (Posicao posicao : jogadasPossiveis) {
                 matrizTeste[posicao.getLinha()][posicao.getColuna()] = simboloJogador;
-                pontuacao = miniMax(matrizTeste, true);
+                pontuacao = miniMax(matrizTeste, true, jogadasPossiveis);
                 matrizTeste[posicao.getLinha()][posicao.getColuna()] = "";
 
                 melhorPontuacaoLocal = min(pontuacao, melhorPontuacaoLocal);
@@ -478,7 +464,7 @@ public class Principal extends javax.swing.JFrame {
 
     }
 
-    public int max(int pontuacao, int melhorPontuacao) {
+    private int max(int pontuacao, int melhorPontuacao) {
 
         if (pontuacao > melhorPontuacao) {
             melhorPontuacao = pontuacao;
@@ -486,7 +472,7 @@ public class Principal extends javax.swing.JFrame {
         return melhorPontuacao;
     }
 
-    public int min(int pontuacao, int melhorPontuacao) {
+    private int min(int pontuacao, int melhorPontuacao) {
 
         if (pontuacao < melhorPontuacao) {
             melhorPontuacao = pontuacao;
@@ -494,7 +480,7 @@ public class Principal extends javax.swing.JFrame {
         return melhorPontuacao;
     }
 
-    public void preencheMatriz(String[][] matriz) {
+    private void preencheMatriz() {
         matriz[0][0] = jb1.getText();
         matriz[0][1] = jb2.getText();
         matriz[0][2] = jb3.getText();
@@ -506,7 +492,7 @@ public class Principal extends javax.swing.JFrame {
         matriz[2][2] = jb9.getText();
     }
 
-    public void preencheBotoes(String[][] matriz) {
+    private void preencheBotoes() {
         jb1.setText(matriz[0][0]);
         jb2.setText(matriz[0][1]);
         jb3.setText(matriz[0][2]);
@@ -518,7 +504,7 @@ public class Principal extends javax.swing.JFrame {
         jb9.setText(matriz[2][2]);
     }
 
-    public void limpaBotoes() {
+    private void limpaBotoes() {
         jb1.setText("");
         jb2.setText("");
         jb3.setText("");
@@ -530,32 +516,32 @@ public class Principal extends javax.swing.JFrame {
         jb9.setText("");
     }
 
-    public String verificaGanhador(String[][] matriz, String simboloJogador) {
+    private String verificaGanhador(String[][] matriz) {
 
         for (int i = 0; i < 3; i++) {
-            if (matriz[i][0] != "" && matriz[i][0].equals(matriz[i][1]) && matriz[i][1].equals(matriz[i][2])) {
+            if (!matriz[i][0].isEmpty() && matriz[i][0].equals(matriz[i][1]) && matriz[i][1].equals(matriz[i][2])) {
 
-                return simboloJogador;
+                return matriz[i][0];
             }
 
-            if (matriz[0][i] != "" && matriz[0][i].equals(matriz[1][i]) && matriz[1][i].equals(matriz[2][i])) {
-                return simboloJogador;
+            if (!matriz[0][i].isEmpty() && matriz[0][i].equals(matriz[1][i]) && matriz[1][i].equals(matriz[2][i])) {
+                return matriz[0][i];
             }
 
         }
 
-        if (matriz[0][0] != "" && matriz[0][0].equals(matriz[1][1]) && matriz[1][1].equals(matriz[2][2])) {
-            return simboloJogador;
+        if (!matriz[0][0].isEmpty() && matriz[0][0].equals(matriz[1][1]) && matriz[1][1].equals(matriz[2][2])) {
+            return matriz[0][0];
         }
 
-        if (matriz[0][2] != "" && matriz[0][2].equals(matriz[1][1]) && matriz[1][1].equals(matriz[2][0])) {
-            return simboloJogador;
+        if (!matriz[0][2].isEmpty() && matriz[0][2].equals(matriz[1][1]) && matriz[1][1].equals(matriz[2][0])) {
+            return matriz[0][2];
         }
 
         for (int linha = 0; linha < 3; linha++) {
             for (int coluna = 0; coluna < 3; coluna++) {
 
-                if (matriz[linha][coluna] == "") {
+                if (matriz[linha][coluna].isEmpty()) {
                     return "";
                 }
             }
