@@ -1,5 +1,6 @@
-package Telas;
+package View;
 
+import Model.Posicao;
 import javax.swing.JOptionPane;
 import java.util.ArrayList;
 import java.util.List;
