@@ -1,6 +1,6 @@
 # Jogo da Velha com IA (Minimax)
 
-![Demonstração](docs/demo.mp4)
+![Demonstração](docs/demo.gif)
 
 Jogo da velha em **Java** com interface gráfica em **Swing**, três modos de jogo e uma IA difícil que usa o algoritmo **minimax**.
 
